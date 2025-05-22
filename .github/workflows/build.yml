@@ -60,9 +60,9 @@ jobs:
           # 推送到私人仓库，使用版本标签
           docker tag headscale:hp${{ steps.version.outputs.HEADPLANE_VERSION }}-hs${{ steps.version.outputs.HEADSCALE_VERSION }} \
             headscale-headplane:hp${{ steps.version.outputs.HEADPLANE_VERSION }}-hs${{ steps.version.outputs.HEADSCALE_VERSION }}
-          docker push headscale-headplane:hp${{ steps.version.outputs.HEADPLANE_VERSION }}-hs${{ steps.version.outputs.HEADSCALE_VERSION }}
+          docker push mooziisp/headscale-headplane:hp${{ steps.version.outputs.HEADPLANE_VERSION }}-hs${{ steps.version.outputs.HEADSCALE_VERSION }}
           
           # 同时推送 latest 标签
           docker tag headscale:hp${{ steps.version.outputs.HEADPLANE_VERSION }}-hs${{ steps.version.outputs.HEADSCALE_VERSION }} \
             headscale-headplane:latest
-          docker push headscale-headplane:latest 
+          docker push mooziisp/headscale-headplane:latest 

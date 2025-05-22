@@ -21,7 +21,7 @@ git clone --depth 1 --branch "v${HEADSCALE_VERSION}" https://github.com/juanfont
 
 # 克隆 headplane
 echo "Cloning headplane v${HEADPLANE_VERSION}..."
-git clone --depth 1 --branch "v${HEADPLANE_VERSION}" https://github.com/your-org/headplane.git "${TEMP_DIR}/headplane"
+git clone --depth 1 --branch "${HEADPLANE_VERSION}" https://github.com/tale/headplane.git "${TEMP_DIR}/headplane"
 
 # 复制文件
 echo "Copying files..."
