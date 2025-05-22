@@ -35,15 +35,17 @@ jobs:
         run: |
           # 移除 'v' 前缀
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          # 格式应该是 headplane-{version}-headscale-{version}
-          # 例如: headplane-1.0.0-headscale-0.22.3
-          if [[ $TAG_VERSION =~ ^headplane-([0-9]+\.[0-9]+\.[0-9]+)-headscale-([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            HEADPLANE_VERSION="${BASH_REMATCH[1]}"
-            HEADSCALE_VERSION="${BASH_REMATCH[2]}"
+          # 格式应该是 {version}-hp{headplane_version}-hs{headscale_version}
+          # 例如: 0.1-hp0.5.10-hs0.26.0
+          if [[ $TAG_VERSION =~ ^([0-9]+\.[0-9]+)-hp([0-9]+\.[0-9]+\.[0-9]+)-hs([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            HEADPLANE_VERSION="${BASH_REMATCH[2]}"
+            HEADSCALE_VERSION="${BASH_REMATCH[3]}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "HEADPLANE_VERSION=$HEADPLANE_VERSION" >> $GITHUB_OUTPUT
             echo "HEADSCALE_VERSION=$HEADSCALE_VERSION" >> $GITHUB_OUTPUT
           else
-            echo "Error: Tag format should be vheadplane-{version}-headscale-{version}"
+            echo "Error: Tag format should be v{version}-hp{headplane_version}-hs{headscale_version}"
             exit 1
           fi
 
