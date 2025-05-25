@@ -18,39 +18,6 @@ RUN pnpm run build
 #WORKDIR /app
 #COPY --from=headplane_build /app/build /app/build
 
-# --- Build Stage 2: Build Headscale ---
-FROM golang:1.24-alpine AS headscale_build
-ARG VERSION
-ARG VERSION_LONG
-ARG VERSION_SHORT
-ARG VERSION_GIT_HASH
-ARG TARGETARCH=amd64
-ARG BUILD_TAGS=""
-
-ENV GOPATH=/go
-ENV VERSION_LONG=$VERSION_LONG
-ENV VERSION_SHORT=$VERSION_SHORT
-ENV VERSION_GIT_HASH=$VERSION_GIT_HASH
-ENV VERSION=$VERSION
-ENV GOPROXY=https://goproxy.cn,direct
-
-WORKDIR /go/src/headscale
-RUN apk update \
-    && apk add --no-cache git \
-    && rm -rf /var/cache/apk/*
-
-COPY headscale/go.mod headscale/go.sum ./
-RUN go mod download
-COPY headscale/ .
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build \
-    -tags="${BUILD_TAGS}" \
-    -ldflags="-X github.com/juanfont/headscale/cmd/headscale/cli.Version=$VERSION \
-              -X github.com/juanfont/headscale/cmd/headscale/cli.VersionLong=$VERSION_LONG \
-              -X github.com/juanfont/headscale/cmd/headscale/cli.VersionShort=$VERSION_SHORT \
-              -X github.com/juanfont/headscale/cmd/headscale/cli.VersionGitHash=$VERSION_GIT_HASH" \
-    -o /go/bin/headscale ./cmd/headscale
-
 # --- Final Stage: Combine and Run on Alpine with Certs ---
 #FROM alpine:3.20 AS base
 FROM node:22-alpine AS base
@@ -91,7 +58,7 @@ RUN mkdir -p /etc/headscale \
     /etc/letsencrypt
 
 # Copy binaries and build output
-COPY --from=headscale_build /go/bin/headscale /app/headscale/bin/headscale
+COPY ./headscale/bin/headscale /app/headscale/bin/headscale
 RUN chmod +x /app/headscale/bin/headscale
 COPY --from=headplane_build /app/build /app/headplane/build
 COPY --from=headplane_build /app/package.json /app/headplane/
