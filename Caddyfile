@@ -1,4 +1,43 @@
+{
+    # 全局配置
+    admin off
+    auto_https disable_redirects
+    storage file_system {
+        root /etc/caddy/data
+    }
+}
+
+# 主域名配置
+:443 {
+    # TLS 配置
+    tls {
+        protocols tls1.2 tls1.3
+    }
+
+    # Headplane 反向代理
+    handle /admin/* {
+        reverse_proxy localhost:3000
+    }
+
+    # Headscale API 反向代理
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # 禁止访问 /* 目录
+    handle /* {
+        respond 404 "Not Found"
+    }
+
+    # 静态文件服务
+    handle {
+        root * /app/headplane/build
+        try_files {path} /index.html
+        file_server
+    }
+}
+
+# HTTP 重定向到 HTTPS
 :80 {
-        reverse_proxy /admin* http://hs-hp-service:3000
-        reverse_proxy * http://hs-hp-service:8080
+    redir https://{host}{uri} permanent
 }

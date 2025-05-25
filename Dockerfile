@@ -18,8 +18,7 @@ RUN pnpm run build
 #WORKDIR /app
 #COPY --from=headplane_build /app/build /app/build
 
-# --- Final Stage: Combine and Run on Alpine with Certs ---
-#FROM alpine:3.20 AS base
+# --- Final Stage: Combine and Run on Alpine with Caddy ---
 FROM node:22-alpine AS base
 
 # Install runtime dependencies
@@ -36,14 +35,8 @@ RUN apk update && apk add --no-cache \
     iptables \
     iproute2 \
     ip6tables \
+    caddy \
     && rm -rf /var/cache/apk/*
-
-# Install acme.sh manually from tarball
-ENV ACME_HOME="/app/acme.sh"
-RUN apk update && apk add --no-cache openssl
-RUN mkdir -p "${ACME_HOME}" \
-    && curl -L https://github.com/acmesh-official/acme.sh/archive/master.tar.gz | tar xz -C /app --one-top-level="${ACME_HOME}" --strip-components=1 \
-    && chmod +x "${ACME_HOME}/acme.sh"
 
 # Create necessary directories
 RUN mkdir -p /etc/headscale \
@@ -55,7 +48,7 @@ RUN mkdir -p /etc/headscale \
     /app/scripts \
     /var/log/supervisor \
     /var/run/headscale \
-    /etc/letsencrypt
+    /etc/caddy
 
 # Copy binaries and build output
 COPY ./headscale/bin/headscale /app/headscale/bin/headscale
@@ -68,26 +61,24 @@ WORKDIR /app
 COPY configs/headscale.yaml /etc/headscale/config.yaml
 COPY configs/headplane.yaml /etc/headplane/config.yaml
 COPY supervisord.conf /etc/supervisord.conf
+COPY Caddyfile /etc/caddy/Caddyfile
 
-# Copy the certificate management script
+# Copy the scripts
 COPY scripts/headplane.sh /app/scripts/headplane.sh
-COPY scripts/cert_manager.sh /app/scripts/cert_manager.sh
-RUN chmod +x /app/scripts/cert_manager.sh
+RUN chmod +x /app/scripts/headplane.sh
 
-# link haedscale and headplane
+# link headscale and headplane
 RUN ln -s /app/headscale/bin/headscale /usr/local/bin/headscale
 RUN ln -s /app/scripts/headplane.sh /usr/local/bin/headplane
-RUN chmod +x /app/scripts/headplane.sh
 
 # Expose ports
 EXPOSE 443/tcp 9000/tcp 80/tcp
 
 # Define volumes
 VOLUME /var/lib/headscale
-VOLUME /etc/letsencrypt
-
-# Entrypoint runs the script to process config and manage certs, then executes CMD
-ENTRYPOINT ["/app/scripts/cert_manager.sh"]
+VOLUME /etc/headscale
+VOLUME /etc/headplane
+VOLUME /etc/caddy
 
 # Default command is to run Supervisord
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
