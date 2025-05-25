@@ -29,12 +29,12 @@
         respond 404 "Not Found"
     }
 
-    # 静态文件服务
-    handle {
-        root * /app/headplane/build
-        try_files {path} /index.html
-        file_server
-    }
+#     # 静态文件服务
+#     handle {
+#         root * /app/headplane/build
+#         try_files {path} /index.html
+#         file_server
+#     }
 }
 
 # HTTP 重定向到 HTTPS
