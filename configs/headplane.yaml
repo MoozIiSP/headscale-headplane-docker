@@ -10,7 +10,7 @@ server:
   # Should the cookies only work over HTTPS?
   # Set to false if running via HTTP without a proxy
   # (I recommend this is true in production)
-  cookie_secure: true
+  cookie_secure: false
 
 # Headscale specific settings to allow Headplane to talk
 # to Headscale and access deep integration features
@@ -20,7 +20,7 @@ headscale:
   # (THIS IS NOT the gRPC endpoint, but the HTTP endpoint)
   #
   # IMPORTANT: If you are using TLS this MUST be set to `https://`
-  url: "http://headscale:5000"
+  url: "http://localhost:8080"
 
   # If you use the TLS configuration in Headscale, and you are not using
   # Let's Encrypt for your certificate, pass in the path to the certificate.
@@ -46,9 +46,9 @@ headscale:
 # Only one of these should be enabled at a time or you will get errors
 integration:
   docker:
-    enabled: false
+    enabled: true
     # The name (or ID) of the container running Headscale
-    container_name: "headscale"
+    container_name: "hs-hp-service"
     # The path to the Docker socket (do not change this if you are unsure)
     # Docker socket paths must start with unix:// or tcp:// and at the moment
     # https connections are not supported.

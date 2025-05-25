@@ -1,0 +1,42 @@
+services:
+  caddy:
+    image: caddy:latest
+    container_name: hs-caddy
+    restart: unless-stopped
+    ports:
+      - "18080:80"
+    volumes:
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+      #- ./derp.json:/var/www/html/derp.json
+      - ./data/caddy/data:/data
+      - ./data/caddy/conf:/config
+    networks: 
+      - caddy
+
+  headscale:
+    image: mooziisp/headscale-headplane:latest
+    container_name: hs-hp-service
+    restart: always
+    volumes:
+      - "./data/headscale/conf:/etc/headscale/"
+      - "./data/headscale/data:/var/lib/headscale"
+      - ./data/headplane/conf:/etc/headplane
+      # This should match headscale.config_path in your config.yaml
+      - type: bind
+        source: ./data/headscale/conf/config.yaml
+        target: /etc/headscale/config.yaml
+
+      # Headplane stores its data in this directory
+      - './data/headplane/data:/var/lib/headplane'
+
+      # If you are using the Docker integration, mount the Docker socket
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+    #environment:
+    #  - DOMAIN=localhost
+    networks:
+      - caddy
+
+networks:
+  caddy:

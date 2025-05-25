@@ -1,0 +1,4 @@
+:80 {
+        reverse_proxy /admin* http://hs-hp-service:3000
+        reverse_proxy * http://hs-hp-service:8080
+}

@@ -10,13 +10,13 @@
 #
 # https://myheadscale.example.com:443
 #
-server_url: http://127.0.0.1:8080
+server_url: http://0.0.0.0:8080
 
 # Address to listen to / bind to on the server
 #
 # For production:
 # listen_addr: 0.0.0.0:8080
-listen_addr: 127.0.0.1:8080
+listen_addr: 0.0.0.0:8080
 
 # Address to listen to /metrics and /debug, you may want
 # to keep this endpoint private to your internal network
@@ -30,7 +30,7 @@ metrics_listen_addr: 127.0.0.1:9090
 #
 # For production:
 # grpc_listen_addr: 0.0.0.0:50443
-grpc_listen_addr: 127.0.0.1:50443
+grpc_listen_addr: 0.0.0.0:50443
 
 # Allow the gRPC admin interface to run in INSECURE
 # mode. This is not recommended as the traffic will
@@ -261,7 +261,7 @@ policy:
 # all the fields under `dns` should be set to empty values.
 dns:
   # Whether to use [MagicDNS](https://tailscale.com/kb/1081/magicdns/).
-  magic_dns: true
+  magic_dns: false
 
   # Defines the base domain to create the hostnames for MagicDNS.
   # This domain _must_ be different from the server_url domain.

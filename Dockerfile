@@ -73,6 +73,7 @@ RUN apk update && apk add --no-cache \
 
 # Install acme.sh manually from tarball
 ENV ACME_HOME="/app/acme.sh"
+RUN apk update && apk add --no-cache openssl
 RUN mkdir -p "${ACME_HOME}" \
     && curl -L https://github.com/acmesh-official/acme.sh/archive/master.tar.gz | tar xz -C /app --one-top-level="${ACME_HOME}" --strip-components=1 \
     && chmod +x "${ACME_HOME}/acme.sh"

@@ -15,18 +15,33 @@ HEADSCALE_VERSION=$2
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT
 
-# 克隆 headscale
-echo "Cloning headscale v${HEADSCALE_VERSION}..."
-git clone --depth 1 --branch "v${HEADSCALE_VERSION}" https://github.com/juanfont/headscale.git "${TEMP_DIR}/headscale"
+# 检查并克隆 headscale
+echo "Checking headscale repository..."
+if [ ! -d "headscale" ]; then
+    echo "Cloning headscale v${HEADSCALE_VERSION}..."
+    git clone --depth 1 --branch "v${HEADSCALE_VERSION}" https://github.com/juanfont/headscale.git "${TEMP_DIR}/headscale"
+    cp -r "${TEMP_DIR}/headscale" .
+else
+    echo "Headscale repository already exists, updating..."
+    cd headscale
+    git fetch origin "v${HEADSCALE_VERSION}"
+    git checkout "v${HEADSCALE_VERSION}"
+    cd ..
+fi
 
-# 克隆 headplane
-echo "Cloning headplane v${HEADPLANE_VERSION}..."
-git clone --depth 1 --branch "${HEADPLANE_VERSION}" https://github.com/tale/headplane.git "${TEMP_DIR}/headplane"
-
-# 复制文件
-echo "Copying files..."
-cp -r "${TEMP_DIR}/headscale" .
-cp -r "${TEMP_DIR}/headplane" .
+# 检查并克隆 headplane
+echo "Checking headplane repository..."
+if [ ! -d "headplane" ]; then
+    echo "Cloning headplane v${HEADPLANE_VERSION}..."
+    git clone --depth 1 --branch "${HEADPLANE_VERSION}" https://github.com/tale/headplane.git "${TEMP_DIR}/headplane"
+    cp -r "${TEMP_DIR}/headplane" .
+else
+    echo "Headplane repository already exists, updating..."
+    cd headplane
+    git fetch origin "${HEADPLANE_VERSION}"
+    git checkout "${HEADPLANE_VERSION}"
+    cd ..
+fi
 
 # 构建 Docker 镜像
 echo "Building Docker image..."
