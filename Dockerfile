@@ -14,9 +14,12 @@ RUN pnpm install --frozen-lockfile
 COPY ./headplane/. .
 RUN pnpm run build
 
-#FROM node:22-alpine
-#WORKDIR /app
-#COPY --from=headplane_build /app/build /app/build
+# --- Build Stage 2: Build Caddy with Cloudflare plugin ---
+FROM golang:1.22-alpine AS caddy_build
+RUN apk add --no-cache git
+RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+RUN xcaddy build \
+    --with github.com/caddy-dns/cloudflare@latest
 
 # --- Final Stage: Combine and Run on Alpine with Caddy ---
 FROM node:22-alpine AS base
@@ -35,8 +38,10 @@ RUN apk update && apk add --no-cache \
     iptables \
     iproute2 \
     ip6tables \
-    caddy \
     && rm -rf /var/cache/apk/*
+
+# Copy custom Caddy binary
+COPY --from=caddy_build /go/caddy /usr/bin/caddy
 
 # Create necessary directories
 RUN mkdir -p /etc/headscale \
@@ -72,7 +77,7 @@ RUN ln -s /app/headscale/bin/headscale /usr/local/bin/headscale
 RUN ln -s /app/scripts/headplane.sh /usr/local/bin/headplane
 
 # Expose ports
-EXPOSE 443/tcp 9000/tcp 80/tcp
+EXPOSE 443/tcp 3000/tcp 3478/udp 50443/tcp
 
 # Define volumes
 VOLUME /var/lib/headscale

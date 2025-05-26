@@ -12,6 +12,7 @@
     # TLS 配置
     tls {
         protocols tls1.2 tls1.3
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
 
     # Headplane 反向代理
@@ -28,16 +29,4 @@
     handle /* {
         respond 404 "Not Found"
     }
-
-#     # 静态文件服务
-#     handle {
-#         root * /app/headplane/build
-#         try_files {path} /index.html
-#         file_server
-#     }
-}
-
-# HTTP 重定向到 HTTPS
-:80 {
-    redir https://{host}{uri} permanent
 }
