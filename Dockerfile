@@ -15,8 +15,9 @@ COPY ./headplane/. .
 RUN pnpm run build
 
 # --- Build Stage 2: Build Caddy with Cloudflare plugin ---
-FROM golang:1.22-alpine AS caddy_build
+FROM golang:1.24-alpine AS caddy_build
 RUN apk add --no-cache git
+ENV GOPROXY=https://goproxy.cn,direct
 RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
 RUN xcaddy build \
     --with github.com/caddy-dns/cloudflare@latest
